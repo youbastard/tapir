@@ -1,0 +1,12 @@
+{
+    "name": "Tapir",
+    "description": "A thing for chewing twigs.",
+    "homepage": "",
+    "version": "0.0.1",
+    "private": false,
+    "dependencies": {
+        "twig": "latest",
+        "colors": "latest",
+        "mkpath": "latest"
+    }
+}
