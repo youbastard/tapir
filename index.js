@@ -11,8 +11,6 @@ module.exports = function(options) {
   init();
 }
 
-module.exports();
-
 function handle(r, err) {
   if (err)
     log('[' + 'ERR'.red + ']' + ' Saved ' + path.normalize(r.dest) + '.', 2);
