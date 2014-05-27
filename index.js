@@ -5,10 +5,13 @@ var path = require('path');
 var colors = require('colors');
 var layout, config;
 
-// TODO: Default options
-module.exports = function(options) {
-  config = options || require('./config.json');
-  init();
+module.exports = function(grunt) {
+  grunt.registerTask('tapir', 'Do a thing', function() {
+      var done = this.async();
+      // TODO: Defaults
+      config = this.options();
+      init(done);
+  });
 }
 
 function handle(r, err) {
@@ -47,6 +50,7 @@ function init() {
 
   for (var i in config.files) {
     var r = {};
+
     if ( typeof config.files[i] === "string") {
       r.rel = i;
       r.dest = config.files[i];
