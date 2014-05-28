@@ -24,15 +24,14 @@ function handle(r, err) {
   if (f === g)
     return done();
   f++;
-  console.log(f)
 }
 
 function loaded(r, t) {
-  var save =  t.render();
+  var save = t.render();
 
-  if (!save)
+  if (!save) {
     log('[' + 'ERR'.red + ']' + ' Processed ' + r.rel.cyan, 2)
-  else {
+  } else {
     log('[' + 'OK'.green + '] Processed ' + r.rel.cyan, 2);
     g++;
     mkpath.sync(path.dirname(config.destination + r.dest));
@@ -41,45 +40,46 @@ function loaded(r, t) {
 }
 
 function init() {
+  var handle = function( t ) {
+    log('[' + 'OK'.green + '] Loaded base layout');
+    layout = t;
+    log('Processing ' + String(Object.keys(config.files).length).red + ' files.', 1);
+
+    for (var i in config.files) {
+      var r = {};
+
+      if (i === config.files.lenght - 1)
+        r.last = true;
+
+      if ( typeof config.files[i] === "string") {
+        r.rel = i;
+        r.dest = config.files[i];
+        if (r.rel[r.rel.length] === "/" || r.rel[r.rel.length] === "\\")
+          r.rel += "index.html";
+      } else if ( config.files[i] === "*" ) {
+        r.rel = i;
+        r.dest = i.replace('.twig', '.html');
+      } else
+        ; // deal with objects later
+
+      new twig.twig({
+        async: true,
+        method: 'fs',
+        path: config.root + 'entries\\' + r.rel,
+        base: config.root,
+        load: loaded.bind(this, r),
+      });
+    }
+  }
+
   /* Layouts */
   new twig.twig({
     id: 'default.twig',
     async: true,
     method: 'fs',
     path: config.root + 'layouts\\default.twig',
-    load: function(t) {
-      log('[' + 'OK'.green + '] Loaded base layout');
-      layout = t;
-    }
+    load: handle
   });
-
-  log('Processing ' + String(Object.keys(config.files).length).red + ' files.', 1);
-
-  for (var i in config.files) {
-    var r = {};
-
-    if (i === config.files.lenght - 1)
-      r.last = true;
-
-    if ( typeof config.files[i] === "string") {
-      r.rel = i;
-      r.dest = config.files[i];
-      if (r.rel[r.rel.length] === "/" || r.rel[r.rel.length] === "\\")
-        r.rel += "index.html";
-    } else if ( config.files[i] === "*" ) {
-      r.rel = i;
-      r.dest = i.replace('.twig', '.html');
-    } else
-      ; // deal with objects later
-
-    new twig.twig({
-      async: true,
-      method: 'fs',
-      path: config.root + 'entries\\' + r.rel,
-      base: config.root,
-      load: loaded.bind(this, r),
-    });
-  }
 }
 
 function log(message, v) {
