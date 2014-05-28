@@ -3,22 +3,28 @@ var twig = require('twig');
 var mkpath = require('mkpath');
 var path = require('path');
 var colors = require('colors');
-var layout, config;
+var layout, config, f = 0, g = 0, done;
 
 module.exports = function(grunt) {
   grunt.registerTask('tapir', 'Do a thing', function() {
-      var done = this.async();
       // TODO: Defaults
+      done = this.async();
       config = this.options();
-      init(done);
+      init();
   });
 }
 
 function handle(r, err) {
+
   if (err)
     log('[' + 'ERR'.red + ']' + ' Saved ' + path.normalize(r.dest) + '.', 2);
   else 
     log('[' + 'OK'.green + ']' + ' Saved ' + path.normalize(r.dest).cyan, 2)
+
+  if (f === g)
+    return done();
+  f++;
+  console.log(f)
 }
 
 function loaded(r, t) {
@@ -28,6 +34,7 @@ function loaded(r, t) {
     log('[' + 'ERR'.red + ']' + ' Processed ' + r.rel.cyan, 2)
   else {
     log('[' + 'OK'.green + '] Processed ' + r.rel.cyan, 2);
+    g++;
     mkpath.sync(path.dirname(config.destination + r.dest));
     fs.writeFile(config.destination + r.dest, layout.render({ content: save }), handle.bind(this, r));
   }
@@ -51,6 +58,9 @@ function init() {
   for (var i in config.files) {
     var r = {};
 
+    if (i === config.files.lenght - 1)
+      r.last = true;
+
     if ( typeof config.files[i] === "string") {
       r.rel = i;
       r.dest = config.files[i];
@@ -73,6 +83,6 @@ function init() {
 }
 
 function log(message, v) {
-  if ((config.verbosity || 3) >= v)
+  if ((config.verbosity || 3) >= (v || 3))
     console.log(message);
 }
