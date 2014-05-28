@@ -21,9 +21,9 @@ function handle(r, err) {
   else 
     log('[' + 'OK'.green + ']' + ' Saved ' + path.normalize(r.dest).cyan, 2)
 
+  f++;
   if (f === g)
     return done();
-  f++;
 }
 
 function loaded(r, t) {
