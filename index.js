@@ -6,12 +6,21 @@ var colors = require('colors');
 var layout, config, f = 0, g = 0, done;
 
 module.exports = function(grunt) {
-  grunt.registerTask('tapir', 'Do a thing', function() {
+  grunt.registerTask('tapir:prod', 'Do a thing', function() {
       // TODO: Defaults
       done = this.async();
-      config = this.options();
+      config = grunt.config('tapir').prod.options;
       init();
   });
+
+  grunt.registerTask('tapir:dev', 'Do a thing', function() {
+      // TODO: Defaults
+      done = this.async();
+      config = grunt.config('tapir').dev.options;
+      init();
+  });
+
+  grunt.registerTask('tapir', ['tapir:prod']);
 }
 
 function handle(r, err) {
