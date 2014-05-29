@@ -74,10 +74,10 @@ function init() {
 
   /* Layouts */
   new twig.twig({
-    id: 'default.twig',
+    id: config.default_layout,
     async: true,
     method: 'fs',
-    path: config.root + 'layouts\\default.twig',
+    path: config.root + 'layouts\\' + config.default_layout,
     load: handle
   });
 }
