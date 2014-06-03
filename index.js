@@ -63,8 +63,9 @@ function init() {
       if ( typeof config.files[i] === "string") {
         r.rel = i;
         r.dest = config.files[i];
-        if (r.rel[r.rel.length] === "/" || r.rel[r.rel.length] === "\\")
-          r.rel += "index.html";
+
+        if (r.dest[r.dest.length - 1] === "/" || r.dest[r.dest.length - 1] === "\\")
+          r.dest += "index.html";
       } else if ( config.files[i] === "*" ) {
         r.rel = i;
         r.dest = i.replace('.twig', '.html');
