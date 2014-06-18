@@ -28,7 +28,6 @@ module.exports = function(grunt) {
 function saveEntry(item, layout, next, template) {
   var save = template.render();
   var handle = function(err) {
-    err = true;
     log( 
       '['.bold + ((save && !err)?'OK'.green.bold:'ERR'.red.bold) + '] '.bold +
       item.rel.bold + 
