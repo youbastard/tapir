@@ -7,7 +7,8 @@
   "dependencies": {
     "twig": "latest",
     "colors": "latest",
-    "mkpath": "latest"
+    "mkpath": "latest",
+    "async": "latest"
   },
   "readme": "ERROR: No README data found!",
   "_id": "Tapir@0.0.3",
