@@ -3,18 +3,19 @@ var twig = require('twig');
 var mkpath = require('mkpath');
 var path = require('path');
 var colors = require('colors');
-var layout, config, f = 0, g = 0, done;
+var async = require('async');
 
+var layout, config, done;
+
+// TODO: Defaults
 module.exports = function(grunt) {
   grunt.registerTask('tapir:prod', 'Do a thing', function() {
-      // TODO: Defaults
       done = this.async();
       config = grunt.config('tapir').prod.options;
       init();
   });
 
   grunt.registerTask('tapir:dev', 'Do a thing', function() {
-      // TODO: Defaults
       done = this.async();
       config = grunt.config('tapir').dev.options;
       init();
@@ -23,73 +24,68 @@ module.exports = function(grunt) {
   grunt.registerTask('tapir', ['tapir:prod']);
 }
 
-function handle(r, err) {
 
-  if (err)
-    log('[' + 'ERR'.red + ']' + ' Saved ' + path.normalize(r.dest) + '.', 2);
-  else 
-    log('[' + 'OK'.green + ']' + ' Saved ' + path.normalize(r.dest).cyan, 2)
+function saveEntry(item, layout, next, template) {
+  var save = template.render();
+  var handle = function(err) {
+    err = true;
+    log( 
+      '['.bold + ((save && !err)?'OK'.green.bold:'ERR'.red.bold) + '] '.bold +
+      item.rel.bold + 
+      Array(Math.max(45 - item.rel.length, 0)).join(' ') + 
+      ' -> '.green.bold +
+      layout.id.bold + 
+      Array(Math.max(14 - layout.id.length, 0)).join(' ') +
+      ((err || !save)?' x '.red.bold:' -> '.green.bold) +
+      path.normalize(item.dest).blue.bold , 2);
+    next();
+  }
 
-  f++;
-  if (f === g)
-    return done();
+  if (save) {
+    mkpath.sync(path.dirname(config.destination + item.dest));
+    fs.writeFile(config.destination + item.dest, layout.render({ content: save }), handle);
+  }
 }
 
-function loaded(r, t) {
-  var save = t.render();
+function processLayout( files, callback, layout ) {
+  log('Processing ' + String(Object.keys(files).length).red + ' files into ' + layout.id.cyan, 1);
 
-  if (!save) {
-    log('[' + 'ERR'.red + ']' + ' Processed ' + r.rel.cyan, 2)
-  } else {
-    log('[' + 'OK'.green + '] Processed ' + r.rel.cyan, 2);
-    g++;
-    mkpath.sync(path.dirname(config.destination + r.dest));
-    fs.writeFile(config.destination + r.dest, layout.render({ content: save }), handle.bind(this, r));
+  var iterator = function( i, next ) {
+    var item = { rel: i };
+    var file = files[i];
+
+    if ( typeof file === 'string' )
+      item.dest = file;
+    else if ( file === '' )
+      item.dest = i.replace('.twig', '.html');
+
+    if ( item.dest[item.dest.length - 1] === '/' || item.dest[item.dest.length - 1] === '\\' )
+      item.dest += 'index.html';
+
+    new twig.twig({
+      async: true,
+      method: 'fs',
+      path: config.root + 'entries\\' + item.rel,
+      base: config.root,
+      load: saveEntry.bind(this, item, layout, next)
+    });
   }
+
+  async.each(Object.keys(files), iterator, callback);
 }
 
 function init() {
-  var handle = function( t ) {
-    log('[' + 'OK'.green + '] Loaded base layout');
-    layout = t;
-    log('Processing ' + String(Object.keys(config.files).length).red + ' files.', 1);
-
-    for (var i in config.files) {
-      var r = {};
-
-      if (i === config.files.lenght - 1)
-        r.last = true;
-
-      if ( typeof config.files[i] === "string") {
-        r.rel = i;
-        r.dest = config.files[i];
-
-        if (r.dest[r.dest.length - 1] === "/" || r.dest[r.dest.length - 1] === "\\")
-          r.dest += "index.html";
-      } else if ( config.files[i] === "*" ) {
-        r.rel = i;
-        r.dest = i.replace('.twig', '.html');
-      } else
-        ; // deal with objects later
-
-      new twig.twig({
-        async: true,
-        method: 'fs',
-        path: config.root + 'entries\\' + r.rel,
-        base: config.root,
-        load: loaded.bind(this, r),
-      });
-    }
-  }
-
   /* Layouts */
-  new twig.twig({
-    id: config.default_layout,
-    async: true,
-    method: 'fs',
-    path: config.root + 'layouts\\' + config.default_layout,
-    load: handle
-  });
+  var iterator = function(i, next) {
+    new twig.twig({
+      id: i,
+      method: 'fs',
+      path: config.root + 'layouts\\' + i,
+      load: processLayout.bind(this, config.builds[i], next)
+    });
+  };
+  
+  async.each(Object.keys(config.builds), iterator, done)
 }
 
 function log(message, v) {

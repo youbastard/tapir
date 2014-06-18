@@ -2,7 +2,7 @@
   "name": "Tapir",
   "description": "A thing for chewing twigs.",
   "homepage": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "dependencies": {
     "twig": "latest",
@@ -10,8 +10,8 @@
     "mkpath": "latest"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "Tapir@0.0.1",
+  "_id": "Tapir@0.0.3",
   "_shasum": "0dcbd98003bd5ce1f8a9a24bbac29abfd6aa71bb",
-  "_resolved": "git://github.com/nicksahler/tapir.git#bf8def8b24dbdb48aaaad9294a7d82d4624e4728",
+  "_resolved": "git://github.com/nicksahler/tapir.git#6d52a96c839adb2c3197e58ac0d53b99b74c5476",
   "_from": "tapir@git://github.com/nicksahler/tapir.git"
 }
