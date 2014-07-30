@@ -22,23 +22,25 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('tapir', ['tapir:prod']);
-}
+};
 
 
 function saveEntry(item, layout, next, template) {
   var save = template.render();
   var handle = function(err) {
-    log( 
-      '['.bold + ((save && !err)?'OK'.green.bold:'ERR'.red.bold) + '] '.bold +
-      item.rel.bold + 
-      Array(Math.max(45 - item.rel.length, 0)).join(' ') + 
+    log(
+      '['.bold +
+      ((save && !err)?'OK'.green.bold:'ERR'.red.bold) +
+      '] '.bold +
+      item.rel.bold +
+      Array(Math.max(45 - item.rel.length, 0)).join(' ') +
       ' -> '.green.bold +
-      layout.id.bold + 
+      layout.id.bold +
       Array(Math.max(14 - layout.id.length, 0)).join(' ') +
       ((err || !save)?' x '.red.bold:' -> '.green.bold) +
       path.normalize(item.dest).blue.bold , 2);
     next();
-  }
+  };
 
   if (save) {
     mkpath.sync(path.dirname(config.destination + item.dest));
@@ -64,11 +66,11 @@ function processLayout( files, callback, layout ) {
     new twig.twig({
       async: true,
       method: 'fs',
-      path: config.root + 'entries\\' + item.rel,
+      path: path.join(config.root, 'entries', item.rel),
       base: config.root,
       load: saveEntry.bind(this, item, layout, next)
     });
-  }
+  };
 
   async.each(Object.keys(files), iterator, callback);
 }
@@ -79,12 +81,12 @@ function init() {
     new twig.twig({
       id: i,
       method: 'fs',
-      path: config.root + 'layouts\\' + i,
+      path: path.join(config.root, 'layouts', i),
       load: processLayout.bind(this, config.builds[i], next)
     });
   };
-  
-  async.each(Object.keys(config.builds), iterator, done)
+
+  async.each(Object.keys(config.builds), iterator, done);
 }
 
 function log(message, v) {
