@@ -28,17 +28,22 @@ module.exports = function(grunt) {
 function saveEntry(item, layout, next, template) {
   var save = template.render();
   var handle = function(err) {
-    log(
-      '['.bold +
-      ((save && !err)?'OK'.green.bold:'ERR'.red.bold) +
-      '] '.bold +
-      item.rel.bold +
-      Array(Math.max(45 - item.rel.length, 0)).join(' ') +
-      ' -> '.green.bold +
-      layout.id.bold +
-      Array(Math.max(14 - layout.id.length, 0)).join(' ') +
-      ((err || !save)?' x '.red.bold:' -> '.green.bold) +
-      path.normalize(item.dest).blue.bold , 2);
+
+    var msg = [
+      '[',
+      ((save && !err) ? 'OK'.green : 'ERR'.red),
+      '] ',
+      item.rel,
+      Array(Math.max(45 - item.rel.length, 0)).join(' '),
+      ' -> '.green,
+      layout.id,
+      Array(Math.max(14 - layout.id.length, 0)).join(' '),
+      ((err || !save) ? ' x '.red : ' -> '.green),
+      path.normalize(item.dest).cyan
+    ].join('');
+
+    log(msg, 2);
+
     next();
   };
 
